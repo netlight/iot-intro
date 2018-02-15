@@ -8,8 +8,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/eclipse/paho.mqtt.golang"
 	influx "github.com/influxdata/influxdb/client/v2"
+)
+
+const (
+	MyDB     = "waldus"
+	username = "root"
+	password = "root"
 )
 
 type Reading struct {
@@ -74,8 +79,11 @@ func main() {
 	}
 
 	influxClient, err := influx.NewHTTPClient(influx.HTTPConfig{
-		Addr: "http://localhost:8086",
+		Addr:     "http://localhost:8086",
+		Username: username,
+		Password: password,
 	})
+
 	if err != nil {
 		panic(err)
 	}
@@ -89,8 +97,8 @@ func main() {
 		client: influxClient,
 	}
 
-	log.Println("Subscribing to sensor-data/#")
-	c.Subscribe("sensor-data/#", 0, bridge.storeSensorData)
+	log.Println("Subscribing to sensordata/#")
+	c.Subscribe("sensordata/#", 0, bridge.storeSensorData)
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)

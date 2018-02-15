@@ -8,11 +8,12 @@ import (
 	"syscall"
 	"time"
 
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	influx "github.com/influxdata/influxdb/client/v2"
 )
 
 const (
-	MyDB     = "waldus"
+	MyDB     = "wadus"
 	username = "root"
 	password = "root"
 )
@@ -29,7 +30,7 @@ func defaultMqttHandler(client mqtt.Client, msg mqtt.Message) {
 	log.Printf("Unhandled message on topic %q - payload: %s\n", msg.Topic(), msg.Payload())
 }
 func (br *mqttInfluxBridge) storeSensorData(client mqtt.Client, msg mqtt.Message) {
-	//log.Printf("Got data on: %s\n", msg.Topic())
+	log.Printf("Got data on: %s\n", msg.Topic())
 	var r Reading
 	err := json.Unmarshal(msg.Payload(), &r)
 	if err != nil {
@@ -37,7 +38,7 @@ func (br *mqttInfluxBridge) storeSensorData(client mqtt.Client, msg mqtt.Message
 		return
 	}
 	bp, err := influx.NewBatchPoints(influx.BatchPointsConfig{
-		Database: "iot",
+		Database: MyDB,
 	})
 	if err != nil {
 		log.Println("Failed to create batch points: ", err)
@@ -68,7 +69,7 @@ type mqttInfluxBridge struct {
 
 func main() {
 	mqtt.ERROR = log.New(os.Stdout, "", 0)
-	opts := mqtt.NewClientOptions().AddBroker("tcp://localhost:1883").SetClientID("influxdb-bridge")
+	opts := mqtt.NewClientOptions().AddBroker("tcp://10.0.1.7:1883").SetClientID("influxdb-bridge")
 	opts.SetKeepAlive(2 * time.Second)
 	opts.SetDefaultPublishHandler(defaultMqttHandler)
 	opts.SetPingTimeout(1 * time.Second)

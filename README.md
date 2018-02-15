@@ -1,7 +1,7 @@
 # iot-intro
 Intro presentation to the internet of things.
 
-ABC, SIMPLE AS 1,2,3
+ABC, SIMPLE AS 1,2,3...
 
 ***How to get started:***
 
@@ -33,6 +33,10 @@ docker run -ti -p 1883:1883 -p 9001:9001 toke/mosquitto
 go run mqtt-influx-bridge/main.go
 ```
 
+Import the grafana dashboard from grafana.json if you are feeling lazy...
+
 ***Run the presentation:***
 
 Latidatida...
+
+***Rejoice...***

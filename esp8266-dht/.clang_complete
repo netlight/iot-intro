@@ -2,25 +2,15 @@
 -I/Users/daka/.platformio/packages/framework-arduinoespressif8266/tools/sdk/lwip/include
 -I/Users/daka/.platformio/packages/framework-arduinoespressif8266/cores/esp8266
 -I/Users/daka/.platformio/packages/framework-arduinoespressif8266/variants/nodemcu
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/src
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/include
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/.piolibdeps/PubSubClient_ID89/src
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/.piolibdeps/ArduinoJson_ID64/src
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/.piolibdeps/Adafruit Unified Sensor
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/.piolibdeps/DHT sensor library
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/lib/ESP8266WiFi/src
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/lib/ESP8266WebServer/src
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/lib/ESP8266HTTPUpdateServer/src
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/lib/ESP8266HTTPUpdateServer/src
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/lib/ESP8266WebServer/src
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/lib/ESP8266WiFi/src
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/.piolibdeps/Adafruit Unified Sensor
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/.piolibdeps/ArduinoJson_ID64/src
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/.piolibdeps/ArduinoJson_ID64/src
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/.piolibdeps/DHT sensor library
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/.piolibdeps/PubSubClient_ID89/src
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/.piolibdeps/PubSubClient_ID89/src
--I/Users/daka/netlight_internal/esp8266/esp8266-dht/lib/ESP8266mDNS
+-I/Users/daka/netlight_internal/iot-intro/esp8266-dht/src
+-I/Users/daka/netlight_internal/iot-intro/esp8266-dht/.piolibdeps/PubSubClient_ID89/src
+-I/Users/daka/netlight_internal/iot-intro/esp8266-dht/.piolibdeps/ArduinoJson_ID64/src
+-I/Users/daka/netlight_internal/iot-intro/esp8266-dht/.piolibdeps/Adafruit Unified Sensor
+-I/Users/daka/netlight_internal/iot-intro/esp8266-dht/.piolibdeps/DHT sensor library
+-I/Users/daka/netlight_internal/iot-intro/esp8266-dht/lib/ESP8266WiFi/src
+-I/Users/daka/netlight_internal/iot-intro/esp8266-dht/lib/ESP8266WebServer/src
+-I/Users/daka/netlight_internal/iot-intro/esp8266-dht/lib/ESP8266HTTPUpdateServer/src
+-I/Users/daka/netlight_internal/iot-intro/esp8266-dht/lib/ESP8266mDNS
 -I/Users/daka/.platformio/packages/framework-arduinoespressif8266/libraries/ArduinoOTA
 -I/Users/daka/.platformio/packages/framework-arduinoespressif8266/libraries/DNSServer/src
 -I/Users/daka/.platformio/packages/framework-arduinoespressif8266/libraries/EEPROM
@@ -55,7 +45,7 @@
 -DF_CPU=80000000L
 -D__ets__
 -DICACHE_FLASH
--DPLATFORMIO=30500
+-DPLATFORMIO=30502
 -DESP8266
 -DARDUINO_ARCH_ESP8266
 -DARDUINO_ESP8266_NODEMCU

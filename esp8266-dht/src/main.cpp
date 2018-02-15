@@ -1,8 +1,3 @@
-#ifndef MQTT_MAX_PACKET_SIZE
-#define MQTT_MAX_PACKET_SIZE 512
-#endif
-
-
 #include <Arduino.h>
 
 // ENM deps
@@ -15,24 +10,15 @@
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
 
-#include <ArduinoJson.h>
-
 // sensor defines
 #define DHTPIN 5
 #define DHTTYPE DHT11   // DHT 22  (AM2302), AM2321
 #define INTERVAL 15000
 
 const char* applicationUUID = "nl_iot_8-webupdate";
-
-const char* tenantId = "1";
-const char* deviceId = "ybmFtZSI6ImNlbyJ9.jZM5Ogdh9aWCBYth7e5m5N6SbAAdu3LstVRxG0a804J58n3Fb2O9M8I9U8Vt0XxO044T_p9R65-JdgiMqxWBe";
-const char* tempType= "urn:olt:temperature";
-const char* humType= "urn:olt:humidity";
-const char* timestamp= "2017-11-24T14:10:12.318570486Z";
-
 const char* ssid = "_";
 const char* password = "043022626";
-const char* mqtt_server = "api.int.oltd.de";
+const char* mqtt_server = "10.0.1.7";
 const char* TOPIC = "sensordata";
 
 char tmp[75];
@@ -55,156 +41,136 @@ char msg[50];
 DHT dht(DHTPIN, DHTTYPE);
 
 void reconnect() {
- if (client.connected()) {
-   return;
- }
+  if (client.connected()) {
+    return;
+  }
 
- Serial.print("Attempting MQTT connection...");
- Serial.print(mqtt_server);
+  Serial.print("Attempting MQTT connection...");
 
- // Create a random client ID
- String clientId = "ESP8266Client-";
- clientId += String(random(0xffff), HEX);
+  // Create a random client ID
+  String clientId = "ESP8266Client-";
+  clientId += String(random(0xffff), HEX);
 
- // Attempt to connect
- if (client.connect(clientId.c_str())) {
-   Serial.println("Connected to MQTT gateway");
-   return;
- }
+  // Attempt to connect
+  if (client.connect(clientId.c_str())) {
+    Serial.println("Connected to MQTT gateway");
+    return;
+  }
 
- Serial.print("failed, rc=");
- Serial.print(client.state());
+  Serial.print("failed, rc=");
+  Serial.print(client.state());
 }
 
 void readSensor() {
- Serial.println("\nReading sensor...");
- // Reading temperature or humidity takes about 250 milliseconds!
- // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
- float h = dht.readHumidity();
+  Serial.println("\nReading sensor...");
+  // Reading temperature or humidity takes about 250 milliseconds!
+  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
+  float h = dht.readHumidity();
 
- // Read temperature as Celsius (the default)
- float t = dht.readTemperature();
- Serial.println("\n Read sensor completed...");
- // Read temperature as Fahrenheit (isFahrenheit = true)
- //float f = dht.readTemperature(true);
+  // Read temperature as Celsius (the default)
+  float t = dht.readTemperature();
+  Serial.println("\n Read sensor completed...");
+  // Read temperature as Fahrenheit (isFahrenheit = true)
+  //float f = dht.readTemperature(true);
 
- // Check if any reads failed and exit early (to try again).
- if (isnan(h) || isnan(t)) {
-   Serial.println("Failed to read from DHT sensor!");
-   return;
- }
+  // Check if any reads failed and exit early (to try again).
+  if (isnan(h) || isnan(t)) {
+    Serial.println("Failed to read from DHT sensor!");
+    return;
+  }
 
- dtostrf(h, 3, 1, hum);
- dtostrf(t, 3, 1, tmp);
- Serial.println("\nValue:");
- Serial.println(tmp);
+  dtostrf(h, 3, 1, hum);
+  dtostrf(t, 3, 1, tmp);
+  Serial.println("\nValue:");
+  Serial.println(tmp);
 
- new_reading = true;
+  new_reading = true;
 }
 
 void transmit() {
+  char payload[375];
 
- Serial.println("transmitting");
+  Serial.println("transmitting");
 
+  snprintf(payload, 375, "{\"temperature\": %s, \"humidity\": %s, \"device\": \"%s\"}", tmp, hum, chipId);
 
- StaticJsonBuffer<500> jsonBuffer;
+  Serial.print(topic);
+  Serial.print(" ");
+  Serial.println(payload);
 
+  client.publish(topic, payload);
 
- JsonArray& root = jsonBuffer.createObject().createNestedArray("");
- JsonObject& tempPayload = root.createNestedObject();
-
- tempPayload["time"] = timestamp;
- tempPayload["value"] = tmp;
- tempPayload["tenantId"] = tenantId;
- tempPayload["deviceId"] = deviceId;
- tempPayload["type"] = tempType;
-
-
- char JSONmessageBuffer[500];
- root.printTo(JSONmessageBuffer, sizeof(JSONmessageBuffer)+1);
-
- Serial.print(topic);
- Serial.print(" ");
- Serial.println(sizeof(JSONmessageBuffer));
-
-
-
- if (!client.publish(topic, JSONmessageBuffer)){
-     Serial.println("FAILED!!!!");
- }
-
- new_reading = false;
+  new_reading = false;
 }
 
+void setup(void) {
+  Serial.begin(115200);
+  Serial.println();
 
-void setup() {
- Serial.begin(115200);
- Serial.println();
+  // Get the unique chip ID
+  itoa(ESP.getChipId(), chipId, 16);
+  Serial.print("chip ID: ");
+  Serial.println(chipId);
 
- // Get the unique chip ID
- itoa(ESP.getChipId(), chipId, 16);
- Serial.print("chip ID: ");
- Serial.println(chipId);
+  // Set the per-device sensor topic
+  snprintf(topic, 100, "%s/%s", TOPIC, chipId);
+  Serial.print("using the following topic to transmit readings: ");
+  Serial.println(topic);
 
- // Set the per-device sensor topic
- snprintf(topic, 100, "%s", TOPIC);
- Serial.print("using the following topic to transmit readings: ");
- Serial.println(topic);
+  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(2, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+  digitalWrite(2, HIGH);
 
- pinMode(LED_BUILTIN, OUTPUT);
- pinMode(2, OUTPUT);
- digitalWrite(LED_BUILTIN, HIGH);
- digitalWrite(2, HIGH);
+  WiFi.setAutoConnect(true);
+  WiFi.setAutoReconnect(true);
+  WiFi.hostname(applicationUUID);
 
- WiFi.setAutoConnect(true);
- WiFi.setAutoReconnect(true);
- WiFi.hostname(applicationUUID);
+  Serial.print("Connecting to gateway...");
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nConnected to gateway");
 
- Serial.print("Connecting to gateway...");
- WiFi.begin(ssid, password);
- while (WiFi.status() != WL_CONNECTED)
- {
-   delay(500);
-   Serial.print(".");
- }
- Serial.println("\nConnected to gateway");
+  // set up mqtt stuff
+  client.setServer(mqtt_server, 1883);
 
- // set up mqtt stuff
- client.setServer(mqtt_server, 1883);
+  httpServer.on("/id", [](){
+    httpServer.send(200, "text/plain", applicationUUID);
+  });
+  httpUpdater.setup(&httpServer);
+  httpServer.begin();
 
- httpServer.on("/id", [](){
-   httpServer.send(200, "text/plain", applicationUUID);
- });
- httpUpdater.setup(&httpServer);
- httpServer.begin();
-
- reconnect();
+  reconnect();
 
 }
 
-void loop() {
- if (WiFi.isConnected() == true) {
-   digitalWrite(2, LOW);
- } else {
-   // turn the LED off
-   digitalWrite(2, HIGH);
- }
+void loop(void) {
+  if (WiFi.isConnected() == true) {
+    digitalWrite(2, LOW);
+  } else {
+    // turn the LED off
+    digitalWrite(2, HIGH);
+  }
 
- if (new_reading == true) {
-   // only try to reconnect when there's a new reading
-   digitalWrite(LED_BUILTIN, LOW);
-   delay(100);
-   reconnect();
-   digitalWrite(LED_BUILTIN, HIGH);
-   transmit();
- }
+  if (new_reading == true) {
+    // only try to reconnect when there's a new reading
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(100);
+    reconnect();
+    digitalWrite(LED_BUILTIN, HIGH);
+    transmit();
+  }
 
- long now = millis();
+  long now = millis();
 
- if (now - lastMsg > INTERVAL) {
-   lastMsg = now;
-   readSensor();
- }
+  if (now - lastMsg > INTERVAL) {
+    lastMsg = now;
+    readSensor();
+  }
 
- httpServer.handleClient();
+  httpServer.handleClient();
 }

@@ -43,8 +43,5 @@ go run mqtt-influx-bridge/main.go
 
 Import the grafana dashboard from grafana.json if you are feeling lazy...
 
-***Run the presentation:***
-
-Latidatida...
 
 ***Rejoice...***
